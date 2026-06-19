@@ -1,0 +1,110 @@
+{
+  "contact": {
+    "name": "Aditya Prasad",
+    "email": "adityaprasad010201@gmail.com",
+    "phone": "9832746810",
+    "location": "Bengaluru",
+    "linkedin": "https://www.linkedin.com/in/aditya-prasad-53a6b61b3",
+    "github": null
+  },
+  "summary": "Accomplished Senior QA Engineer with 4 years of experience in delivering high-quality software solutions through rigorous testing and process optimization. Expert in leading QA initiatives, developing and executing robust test plans, and implementing cutting-edge automated testing frameworks.",
+  "skills": {
+    "technical": [
+      "Robot Framework",
+      "Postman",
+      "PyCharm",
+      "JIRA",
+      "SQL clients",
+      "API testing (SOAP & REST)",
+      "Data Migration testing",
+      "Regression testing",
+      "UI/UX testing"
+    ],
+    "tools": [
+      "Postman",
+      "JIRA",
+      "SQL clients",
+      "PyCharm"
+    ],
+    "soft": []
+  },
+  "experience": [
+    {
+      "company": "6d Technologies",
+      "title": "Senior QA Engineer",
+      "location": "Bengaluru, India",
+      "start_date": "12/2024",
+      "end_date": "Present",
+      "duration_months": 0,
+      "responsibilities": [
+        "Developed and maintained automation test scripts for Inventory Delivery Broker (IDB) using Robot Framework in PyCharm, ensuring efficient test execution and reliability.",
+        "Conducted API testing using Postman, validating RESTful APIs with various request methods (GET, POST, PUT, DELETE), handling both positive and negative test cases.",
+        "Created and executed test cases with multiple request combinations, ensuring comprehensive test coverage and identifying critical defects."
+      ],
+      "achievements": [],
+      "is_current": true
+    },
+    {
+      "company": "Tecnotree Convergence Private Limited",
+      "title": "Senior QA Engineer",
+      "location": "Bengaluru, India",
+      "start_date": "10/2021",
+      "end_date": "12/2024",
+      "duration_months": 36,
+      "responsibilities": [
+        "Involved in end to end testing of BSS Telecom domain with hands on experience in various Tecnotree products - Customer management (DCLM), Order and product catalog management.",
+        "Built automated test scripts to handle repetitive software testing work.",
+        "Enhanced team efficiency by implementing agile methodologies and streamlining QA processes.",
+        "Hands-on experience in API testing (SOAP & REST), Data Migration testing, Regression testing and UI/UX testing."
+      ],
+      "achievements": [],
+      "is_current": false
+    }
+  ],
+  "education": [
+    {
+      "degree": null,
+      "field": null,
+      "institution": null,
+      "graduation_year": null,
+      "gpa": null
+    }
+  ],
+  "projects": [
+    {
+      "name": "VENTAS (etisalat)",
+      "description": "Performed comprehensive API testing using Postman, validating request/response payloads, status codes, and error handling across multiple endpoints. Maintained detailed documentation of test cases, execution reports, and defect logs for future reference and audit purposes.",
+      "tech_used": [
+        "Postman"
+      ],
+      "url": null
+    },
+    {
+      "name": "Ooredoo Tunisia",
+      "description": "Designed and executed 1,500+ test cases for CRM, achieving 98% coverage with under 0.1% escape defects. Enhanced defect identification by 30% by implementing a systematic approach using JIRA.",
+      "tech_used": [
+        "JIRA"
+      ],
+      "url": null
+    },
+    {
+      "name": "ZAIN Bahrain",
+      "description": "Executed 200+ automated and manual test scenarios bi-weekly, maintaining a steady release cadence with less than 2% rollback incidents. Spearheaded the adoption of SQL clients for database testing, resulting in a 40% improvement in data validation accuracy.",
+      "tech_used": [
+        "SQL clients"
+      ],
+      "url": null
+    },
+    {
+      "name": "STC Kuwait",
+      "description": "Designed test plans and scripts for 3 new software product lines, boosting test coverage and efficiency by 15%. Identified and documented over 300 bugs in the first year, consistently meeting milestone deadlines.",
+      "tech_used": [],
+      "url": null
+    }
+  ],
+  "certifications": [],
+  "total_experience_years": 4.0,
+  "raw_sections": {},
+  "parser_version": "v1",
+  "extraction_confidence": 1.0
+}

@@ -1,0 +1,32 @@
+{
+  "skills": {
+    "required": [
+      "Python",
+      "FastAPI",
+      "PostgreSQL",
+      "Docker"
+    ],
+    "preferred": [
+      "Kubernetes"
+    ]
+  },
+  "experience_years": 2.0,
+  "education": {
+    "minimum_degree": null,
+    "preferred_fields": [],
+    "is_mandatory": false
+  },
+  "role_type": "backend",
+  "seniority": "mid",
+  "responsibilities": [],
+  "location": null,
+  "work_mode": null,
+  "scoring_weights": {
+    "skills": 0.4,
+    "experience": 0.25,
+    "llm": 0.25,
+    "education": 0.1
+  },
+  "extraction_confidence": 1.0,
+  "jd_word_count": 25
+}
