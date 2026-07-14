@@ -129,6 +129,7 @@ def _fail(path: Path, error: str) -> ValidationResult:
     )
 
 def validate_batch(file_paths: list[str | Path]) -> dict:
+
     passed = []
     failed = []
 
