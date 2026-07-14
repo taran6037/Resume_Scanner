@@ -1,17 +1,3 @@
-# scripts/run_pipeline.py
-#
-# End-to-end test harness for layers 1, 2, and 3.
-#
-# Flow:
-#   LAYER 1  file → validate → route → raw text
-#   LAYER 2  raw text → clean → ner (regex, stays local) → Qwen (no PII)
-#   LAYER 3  JD text → clean → Qwen → structured_criteria
-#
-# Usage:
-#   python scripts/run_pipeline.py --demo
-#   python scripts/run_pipeline.py --resume data/resumes/cv.pdf --jd "JD text here"
-#   python scripts/run_pipeline.py --resume data/resumes/cv.pdf --jd data/resumes/jd.txt
-
 import sys
 import json
 import argparse
@@ -28,9 +14,6 @@ logging.basicConfig(
     datefmt = "%H:%M:%S",
 )
 logger = logging.getLogger("run_pipeline")
-
-
-# ─── Demo data ────────────────────────────────────────────────────────────────
 
 DEMO_JD = """
 Senior Backend Engineer - Platform Team
@@ -115,13 +98,8 @@ Docker Fundamentals Docker Inc 2023
 """
 
 
-# ─── Resume pipeline (layers 1 + 2) ──────────────────────────────────────────
-
 def run_resume_pipeline(resume_path: str | Path) -> dict:
-    """
-    Runs a resume file through layer 1 (ingestion) and layer 2 (parsing).
-    Returns parsed_profile as a dict.
-    """
+
     from pipeline.ingestion.validator import validate_file
     from pipeline.ingestion.router import route_file
     from pipeline.parsing.cleaner import clean_text
@@ -130,7 +108,6 @@ def run_resume_pipeline(resume_path: str | Path) -> dict:
 
     print_header("LAYER 1 — INGESTION")
 
-    # ── Validate ──────────────────────────────────────────────────────────
     print(f"  Validating: {Path(resume_path).name}")
     validation = validate_file(resume_path)
 
@@ -144,7 +121,6 @@ def run_resume_pipeline(resume_path: str | Path) -> dict:
         for w in validation.warnings:
             print(f"  ⚠ {w}")
 
-    # ── Route to parser ────────────────────────────────────────────────────
     print(f"  Routing to parser...")
     route = route_file(validation)
     print(f"  ✓ Parser used  : {route.parser_used}")
@@ -156,16 +132,12 @@ def run_resume_pipeline(resume_path: str | Path) -> dict:
             print(f"  ⚠ {w}")
 
     print_header("LAYER 2 — PARSING")
-
-    # ── Clean ─────────────────────────────────────────────────────────────
     print("  Cleaning text...")
     clean = clean_text(route.raw_text, was_ocr=route.is_scanned)
     print(f"  ✓ Cleaned | {clean.original_length} → {clean.cleaned_length} chars")
 
     if clean.injection_flags:
         print(f"  ⚠ SECURITY — injection patterns removed: {clean.injection_flags}")
-
-    # ── NER (regex + spaCy — stays local, no Qwen) ────────────────────────
     print("  Extracting contact info (regex — stays local)...")
     ner = extract_entities(clean.clean_text)
     print(f"  ✓ Name    : {ner.contact.name}")
@@ -175,8 +147,6 @@ def run_resume_pipeline(resume_path: str | Path) -> dict:
     print(f"    GitHub  : {ner.contact.github}")
     print(f"    spaCy   : {'yes' if ner.spacy_used else 'no (regex-only mode)'}")
     print(f"  ✓ Contact info extracted — will NOT be sent to Qwen")
-
-    # ── Qwen structured extraction (no PII, no keyword sections) ──────────
     print("  Sending clean text to Qwen (contact lines stripped)...")
     print("  ⏳ Qwen is thinking — this takes 20-60 seconds on first run...")
     profile = extract_structured_profile(
@@ -197,9 +167,6 @@ def run_resume_pipeline(resume_path: str | Path) -> dict:
     print(f"    Confidence       : {profile.extraction_confidence}")
 
     return profile.model_dump()
-
-
-# ─── JD pipeline (layer 3) ────────────────────────────────────────────────────
 
 def run_jd_pipeline(jd_text: str) -> dict:
     """
@@ -227,10 +194,7 @@ def run_jd_pipeline(jd_text: str) -> dict:
     return criteria
 
 
-# ─── Demo mode ────────────────────────────────────────────────────────────────
-
 def run_demo_mode():
-    """Runs the full pipeline with built-in sample data — no files needed."""
     import tempfile, os
 
     print("\n" + "="*60)
@@ -255,12 +219,7 @@ def run_demo_mode():
         save_and_summarize(profile, criteria, "demo")
     finally:
         os.unlink(demo_path)
-
-
-# ─── Save + summary ───────────────────────────────────────────────────────────
-
 def save_and_summarize(profile: dict, criteria: dict, label: str):
-    """Saves outputs to data/processed/ and prints final summary."""
 
     output_dir = PROJECT_ROOT / "data" / "processed"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -290,9 +249,6 @@ def save_and_summarize(profile: dict, criteria: dict, label: str):
     print(f"    Exp min  : {criteria.get('experience_years')} years")
     print("="*60 + "\n")
 
-
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
 def print_header(title: str):
     print(f"\n{'─'*60}")
     print(f"  {title}")
@@ -314,8 +270,6 @@ def check_ollama():
         print("    2. ollama pull qwen3:8b")
         sys.exit(1)
 
-
-# ─── CLI ──────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(
@@ -349,8 +303,6 @@ def main():
         print("Error: --jd is required (or use --demo)")
         parser.print_help()
         sys.exit(1)
-
-    # JD can be a file path or raw text
     jd_path = Path(args.jd)
     jd_text = jd_path.read_text(encoding="utf-8") if jd_path.exists() else args.jd
 
