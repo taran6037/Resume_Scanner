@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>New job posting — Resume Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #14253d;
+      --ink-soft: #41526c;
+      --paper: #f6f4ed;
+      --card: #ffffff;
+      --verified: #156a52;
+      --verified-light: #e6f2ec;
+      --caution: #a6501c;
+      --caution-light: #f6e9dd;
+      --line: #ded6c0;
+      --muted: #74705f;
+      --accent: #b8842c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", Helvetica, Arial, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      background: var(--ink);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 56px;
+    }
+
+    .topbar .brand {
+      font-family: "Source Serif 4", serif;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 0.2px;
+    }
+
+    .topbar nav {
+      display: flex;
+      gap: 4px;
+    }
+
+    .topbar nav a {
+      color: #aab4c8;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 4px;
+    }
+
+    .topbar nav a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .topbar nav a:hover {
+      color: #fff;
+    }
+
+    header.page-head {
+      padding: 36px 40px 8px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    header.page-head h1 {
+      font-family: "Source Serif 4", serif;
+      font-size: 26px;
+      margin: 0 0 4px;
+      font-weight: 700;
+    }
+
+    header.page-head .sub {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 40px 80px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      main {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .topbar,
+      header.page-head {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 26px;
+    }
+
+    .card+.card {
+      margin-top: 20px;
+    }
+
+    .section-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-family: "Source Serif 4", serif;
+      font-size: 17px;
+      margin: 0 0 18px;
+      font-weight: 700;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 11px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--ink);
+      background: #fdfcf9;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--verified);
+      box-shadow: 0 0 0 3px var(--verified-light);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 260px;
+      line-height: 1.55;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .weight-row {
+      margin-bottom: 22px;
+    }
+
+    .weight-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .weight-row .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .weight-row .top .name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .weight-row .top .pct {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      min-width: 42px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--line);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--verified);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 1px var(--verified);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--verified);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 1px var(--verified);
+      cursor: pointer;
+    }
+
+    .stacked-bar {
+      display: flex;
+      width: 100%;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 18px 0 12px;
+      background: var(--line);
+    }
+
+    .stacked-bar .seg {
+      height: 100%;
+      transition: width 0.15s ease;
+    }
+
+    .seg-skills {
+      background: #156a52;
+    }
+
+    .seg-experience {
+      background: #2f6aa3;
+    }
+
+    .seg-llm {
+      background: #a6501c;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .legend .item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend .sw {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .edu-section {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .edu-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 6px;
+      background: var(--verified-light);
+      margin-top: 4px;
+    }
+
+    .total-row.invalid {
+      background: var(--caution-light);
+    }
+
+    .total-row .label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .total-row .value {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--verified);
+    }
+
+    .total-row.invalid .value {
+      color: var(--caution);
+    }
+
+    .warn {
+      font-size: 13px;
+      color: var(--caution);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 11px 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button:hover {
+      background: #f3f1ea;
+    }
+
+    button.primary {
+      flex: 1;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+    }
+
+    button.primary:hover {
+      background: #1d3354;
+    }
+
+    button.primary:disabled {
+      background: #c7c4b8;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      flex: 1;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .status.success {
+      background: var(--verified-light);
+      color: var(--verified);
+      display: block;
+    }
+
+    .status.error {
+      background: var(--caution-light);
+      color: var(--caution);
+      display: block;
+    }
+
+    .progress-box {
+      margin-top: 16px;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--verified);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .view-results {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--verified);
+      text-decoration: none;
+    }
+
+    .view-results:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="brand">AI Resume Scanner</div>
+    <nav>
+      <a href="/intake" class="active">New job</a>
+      <a href="/dashboard">Rankings</a>
+    </nav>
+  </div>
+
+  <header class="page-head">
+    <h1>New job posting</h1>
+    <div class="sub">Configure the job description and scoring parameters to begin candidate evaluation.</div>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="section-label">Step 1</div>
+      <h2>Job description</h2>
+      <div class="field">
+        <label class="field-label" for="title">Job title</label>
+        <input type="text" id="title" placeholder="e.g. Senior Backend Engineer" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="jd">Paste the job description</label>
+        <textarea id="jd"
+          placeholder="Paste the full job description here. Required skills, experience, and education criteria will be parsed and matched against candidates using these weights."></textarea>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="section-label">Step 2</div>
+        <h2>Scoring weights</h2>
+
+        <div class="weight-row">
+          <div class="top"><span class="name">Skills match</span><span class="pct" id="out-skills">40%</span></div>
+          <input type="range" min="0" max="100" step="1" value="40" id="slider-skills" />
+        </div>
+        <div class="weight-row">
+          <div class="top"><span class="name">Experience</span><span class="pct" id="out-experience">34%</span></div>
+          <input type="range" min="0" max="100" step="1" value="34" id="slider-experience" />
+        </div>
+        <div class="weight-row">
+          <div class="top"><span class="name">LLM semantic score</span><span class="pct" id="out-llm">26%</span></div>
+          <input type="range" min="0" max="100" step="1" value="26" id="slider-llm" />
+        </div>
+
+        <div class="stacked-bar" id="stacked-bar">
+          <div class="seg seg-skills" style="width:40%"></div>
+          <div class="seg seg-experience" style="width:34%"></div>
+          <div class="seg seg-llm" style="width:26%"></div>
+        </div>
+        <div class="legend">
+          <span class="item"><span class="sw" style="background:#156a52"></span>Skills</span>
+          <span class="item"><span class="sw" style="background:#2f6aa3"></span>Experience</span>
+          <span class="item"><span class="sw" style="background:#a6501c"></span>LLM</span>
+        </div>
+
+        <div class="edu-section">
+          <label class="field-label" for="education-requirement">Education requirement</label>
+          <select id="education-requirement">
+            <option value="none">No requirement</option>
+            <option value="diploma_preferred">Diploma — preferred</option>
+            <option value="diploma_required">Diploma — required</option>
+            <option value="bachelors_preferred">Bachelor's — preferred</option>
+            <option value="bachelors_required">Bachelor's — required</option>
+            <option value="masters_preferred">Master's — preferred</option>
+            <option value="masters_required">Master's — required</option>
+            <option value="phd_preferred">PhD — preferred</option>
+            <option value="phd_required">PhD — required</option>
+          </select>
+          <div class="edu-hint">
+            "Required" excludes candidates below the threshold from the ranking.
+            "Preferred" flags them but keeps them visible.
+          </div>
+        </div>
+
+        <div class="total-row" id="total-row" style="margin-top:18px;">
+          <span class="label">Total</span>
+          <span class="value" id="total-value">100%</span>
+        </div>
+        <div class="warn" id="warn">Weights must sum to 100% before submitting</div>
+
+        <div class="actions">
+          <button class="secondary" id="normalize-btn" type="button">Normalize to 100%</button>
+          <button class="primary" id="submit-btn" type="button">Run on all resumes</button>
+        </div>
+
+        <div class="status" id="status"></div>
+        <div class="progress-box" id="progress-box" style="display:none;">
+          <div class="progress-label" id="progress-label">Starting...</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <a href="/dashboard" class="view-results" id="view-results" style="display:none;">View results &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const KEYS = ["skills", "experience", "llm"];
+    let weights = { skills: 40, experience: 34, llm: 26 };
+
+    function render() {
+      const total = KEYS.reduce((s, k) => s + weights[k], 0);
+      KEYS.forEach(k => {
+        document.getElementById("out-" + k).textContent = weights[k] + "%";
+        document.querySelector(".seg-" + k).style.width = weights[k] + "%";
+      });
+      document.getElementById("total-value").textContent = total + "%";
+      const totalRow = document.getElementById("total-row");
+      const warn = document.getElementById("warn");
+      const submitBtn = document.getElementById("submit-btn");
+      const isValid = total === 100;
+      totalRow.classList.toggle("invalid", !isValid);
+      warn.style.display = isValid ? "none" : "block";
+      submitBtn.disabled = !isValid;
+    }
+
+    KEYS.forEach(k => {
+      document.getElementById("slider-" + k).addEventListener("input", e => {
+        weights[k] = parseInt(e.target.value, 10);
+        render();
+      });
+    });
+
+    document.getElementById("title").addEventListener("input", render);
+    document.getElementById("jd").addEventListener("input", render);
+
+    document.getElementById("normalize-btn").addEventListener("click", () => {
+      const total = KEYS.reduce((s, k) => s + weights[k], 0);
+      if (total === 0) return;
+      let running = 0;
+      KEYS.forEach((k, i) => {
+        if (i === KEYS.length - 1) {
+          weights[k] = 100 - running;
+        } else {
+          weights[k] = Math.round((weights[k] / total) * 100);
+          running += weights[k];
+        }
+      });
+      KEYS.forEach(k => {
+        document.getElementById("slider-" + k).value = weights[k];
+      });
+      render();
+    });
+
+    let pollTimer = null;
+    let runStartTime = null;
+
+    document.getElementById("submit-btn").addEventListener("click", async () => {
+      const jd = document.getElementById("jd").value.trim();
+      const status = document.getElementById("status");
+      const submitBtn = document.getElementById("submit-btn");
+
+      if (!jd) {
+        status.className = "status error";
+        status.textContent = "Paste a job description first.";
+        return;
+      }
+
+      status.className = "status";
+      status.style.display = "none";
+
+      try {
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jd_text: jd,
+            scoring_weights: {
+              ...Object.fromEntries(KEYS.map(k => [k, Math.round(weights[k]) / 100])),
+              education_requirement: document.getElementById("education-requirement").value,
+            }
+          })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          status.className = "status error";
+          status.textContent = data.detail || "Could not start the run.";
+          return;
+        }
+
+        submitBtn.disabled = true;
+        document.getElementById("progress-box").style.display = "block";
+        document.getElementById("view-results").style.display = "none";
+        pollStatus();
+
+      } catch (e) {
+        status.className = "status error";
+        status.textContent = "Could not reach the server. Make sure it is running.";
+      }
+    });
+
+    function pollStatus() {
+      runStartTime = Date.now();
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(async () => {
+        try {
+          const res = await fetch("/api/run-status");
+          const s = await res.json();
+          const label = document.getElementById("progress-label");
+          const fill = document.getElementById("progress-fill");
+          const submitBtn = document.getElementById("submit-btn");
+          const elapsed = Math.floor((Date.now() - runStartTime) / 1000);
+          const mins = Math.floor(elapsed / 60);
+          const secs = elapsed % 60;
+          const elapsedStr = `${mins}:${secs.toString().padStart(2, "0")}`;
+
+          if (s.status === "running") {
+            const pct = s.total ? Math.round((s.current / s.total) * 100) : 0;
+            label.textContent = s.total
+              ? `Processing ${s.current} of ${s.total} — ${s.current_file || ""} (${elapsedStr} elapsed)`
+              : `Reading job description... (${elapsedStr} elapsed)`;
+            fill.style.width = pct + "%";
+          } else if (s.status === "done") {
+            label.textContent = "Done — all resumes processed.";
+            fill.style.width = "100%";
+            document.getElementById("view-results").style.display = "inline-block";
+            submitBtn.disabled = false;
+            clearInterval(pollTimer);
+          } else if (s.status === "error") {
+            label.textContent = "Error: " + (s.error || "something went wrong.");
+            submitBtn.disabled = false;
+            clearInterval(pollTimer);
+          }
+        } catch (e) {
+          clearInterval(pollTimer);
+        }
+      }, 2000);
+    }
+
+    render();
+  </script>
+
+</body>
+
+</html>
