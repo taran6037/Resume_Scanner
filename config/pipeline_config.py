@@ -259,6 +259,40 @@ DEFAULT_WEIGHT_EXPERIENCE = 0.25   # 25% — years + relevance of experience
 DEFAULT_WEIGHT_LLM        = 0.25   # 25% — Qwen semantic reasoning score
 DEFAULT_WEIGHT_EDUCATION  = 0.10   # 10% — degree + field match
 
+# Education requirement levels for the hard-filter gate
+# Used by: pipeline/matching/scoring.py, frontend/job_intake.html
+EDUCATION_LEVELS = {
+    "none":               0,   # No requirement
+    "diploma_preferred":  1,
+    "diploma_required":   1,
+    "bachelors_preferred": 2,
+    "bachelors_required":  2,
+    "masters_preferred":  3,
+    "masters_required":   3,
+    "phd_preferred":      4,
+    "phd_required":       4,
+}
+
+# Degree level extracted from resume maps to numeric level
+DEGREE_LEVEL_MAP = {
+    "diploma":         1,
+    "associate":       1,
+    "bachelor":        2,
+    "b.tech":          2,
+    "b.e":             2,
+    "b.sc":            2,
+    "b.com":           2,
+    "undergraduate":   2,
+    "master":          3,
+    "m.tech":          3,
+    "m.sc":            3,
+    "mba":             3,
+    "postgraduate":    3,
+    "phd":             4,
+    "ph.d":            4,
+    "doctorate":       4,
+    "doctor":          4,
+}
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 11. PIPELINE METADATA
@@ -289,24 +323,6 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 # Device to run the model on. "cpu" works on all machines.
 # Change to "cuda" if you have a GPU for faster embedding.
 EMBEDDING_DEVICE = "cpu"
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# 13. CHROMADB SETTINGS
-# Used by: pipeline/matching/vector_store.py
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# ChromaDB HTTP client settings — connects to the Docker container.
-CHROMA_HOST = "localhost"
-CHROMA_PORT = 8001
-
-# Collection names — one for candidates, one for jobs.
-CHROMA_CANDIDATE_COLLECTION = "candidates"
-CHROMA_JD_COLLECTION        = "jobs"
-
-# How many similar candidates to return in a search by default.
-CHROMA_TOP_K = 10
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 14. SEMANTIC MATCHING SETTINGS
