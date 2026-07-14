@@ -1,4 +1,3 @@
-
 import sys
 import json
 import argparse
@@ -8,10 +7,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-logging.basicConfig(
-    level=logging.WARNING,  
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s | %(levelname)s | %(message)s")
+
 
 def print_header(title):
     print(f"\n{'─'*60}")
@@ -20,49 +17,9 @@ def print_header(title):
 
 
 def run_test(profile: dict, criteria: dict):
-    from pipeline.matching.embedder import embed_candidate, embed_jd
-    from pipeline.matching.vector_store import (
-        store_candidate, store_jd, search_candidates,
-        check_chroma_health, collection_stats
-    )
     from pipeline.matching.semantic_matcher import semantic_match
-    import uuid
-    print_header("LAYER 4 — EMBEDDINGS")
-    print("  Embedding candidate profile...")
-    c_vector, c_text = embed_candidate(profile)
-    print(f"  ✓ Candidate vector : {len(c_vector)} dims")
-    print(f"    Fields used      : {c_text[:100]}...")
 
-    print("  Embedding JD criteria...")
-    j_vector, j_text = embed_jd(criteria)
-    print(f"  ✓ JD vector        : {len(j_vector)} dims")
-    print(f"    Fields used      : {j_text[:100]}...")
-
-    print_header("LAYER 5 — VECTOR STORE (ChromaDB)")
-    health = check_chroma_health()
-    similarity_score = None
-
-    if health["status"] != "ok":
-        print(f"  ✗ {health['message']}")
-        print("  Skipping ChromaDB storage. Run: docker-compose up -d")
-    else:
-        print(f"  ✓ {health['message']}")
-        c_id = str(uuid.uuid4())
-        j_id = str(uuid.uuid4())
-
-        store_candidate(c_id, c_vector, metadata={"source": "test_run"})
-        store_jd(j_id, j_vector, metadata={"source": "test_run"})
-        print(f"  ✓ Stored in ChromaDB — candidate: {c_id[:8]}...  job: {j_id[:8]}...")
-
-        stats = collection_stats()
-        print(f"  ✓ Collection stats : candidates={stats['candidates']}, jobs={stats['jobs']}")
-
-        results = search_candidates(j_vector, top_k=1)
-        if results:
-            similarity_score = results[0]["similarity_score"]
-            print(f"  ✓ Vector similarity: {similarity_score}/100")
-
-    print_header("LAYER 6 — SEMANTIC MATCHING (Qwen)")
+    print_header("SEMANTIC MATCHING (Qwen)")
     print("  ⏳ Calling Qwen for deep semantic analysis...")
     match = semantic_match(profile, criteria)
 
@@ -74,18 +31,16 @@ def run_test(profile: dict, criteria: dict):
     print(f"    Reasoning           : {match.reasoning}")
 
     print_header("FINAL MATCH SUMMARY")
-    if similarity_score:
-        print(f"  Vector similarity (ChromaDB cosine) : {similarity_score}/100")
-    print(f"  Semantic score (Qwen analysis)      : {match.semantic_score}/100")
-    print(f"  Experience relevance                : {match.experience_relevance}/100")
-    print(f"  Skills matched                      : {', '.join(match.skill_matches) or 'none'}")
-    print(f"  Skills missing                      : {', '.join(match.skill_gaps) or 'none'}")
-    print(f"  Reasoning                           : {match.reasoning}")
+    print(f"  Semantic score (Qwen analysis) : {match.semantic_score}/100")
+    print(f"  Experience relevance           : {match.experience_relevance}/100")
+    print(f"  Skills matched                 : {', '.join(match.skill_matches) or 'none'}")
+    print(f"  Skills missing                 : {', '.join(match.skill_gaps) or 'none'}")
+    print(f"  Reasoning                      : {match.reasoning}")
     print("─"*60)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Test matching pipeline (layers 4-6)")
+    parser = argparse.ArgumentParser(description="Test semantic matching (layer 6)")
     parser.add_argument("--profile", type=str, help="Path to parsed profile JSON")
     parser.add_argument("--jd",      type=str, help="Path to structured criteria JSON")
     parser.add_argument("--demo",    action="store_true", help="Run with dummy data")
