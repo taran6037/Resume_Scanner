@@ -17,12 +17,6 @@ pytesseract==0.3.13
 # NLP / NER
 spacy==3.7.5
 
-# Embeddings
-sentence-transformers==3.0.1
-
-# Vector Store
-chromadb==0.5.3
-
 # AI Tool / LLM Orchestration
 langchain==0.2.6
 langchain-openai==0.1.14
