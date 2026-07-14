@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Candidate ranking — Resume Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #14253d;
+      --ink-soft: #41526c;
+      --paper: #f6f4ed;
+      --card: #ffffff;
+      --verified: #156a52;
+      --verified-bg: #e6f2ec;
+      --caution: #a6501c;
+      --caution-bg: #f6e9dd;
+      --line: #ded6c0;
+      --muted: #74705f;
+      --accent: #b8842c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", Helvetica, Arial, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      background: var(--ink);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 56px;
+    }
+
+    .topbar .brand {
+      font-family: "Source Serif 4", serif;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: 0.2px;
+    }
+
+    .topbar nav {
+      display: flex;
+      gap: 4px;
+    }
+
+    .topbar nav a {
+      color: #aab4c8;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 4px;
+    }
+
+    .topbar nav a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .topbar nav a:hover {
+      color: #fff;
+    }
+
+    header.page-head {
+      padding: 36px 40px 24px;
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    header.page-head h1 {
+      font-family: "Source Serif 4", serif;
+      font-size: 26px;
+      margin: 0 0 4px;
+      font-weight: 700;
+    }
+
+    header.page-head .sub {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .btn-full-report {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--ink);
+      color: #fff;
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-full-report:hover {
+      background: #1d3354;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+
+    .jd-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 22px 26px;
+      margin-bottom: 20px;
+    }
+
+    .jd-card .label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .jd-card .role-line {
+      font-family: "Source Serif 4", serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .jd-card .skills-line {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 14px 18px;
+      text-align: center;
+    }
+
+    .stat .num {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .stat .lbl {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 2px 10px;
+    }
+
+    .candidate {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: rise 0.35s ease forwards;
+    }
+
+    .candidate.excluded-card {
+      border-color: var(--caution-bg);
+      background: #fffaf7;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .candidate-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 22px;
+      cursor: pointer;
+    }
+
+    .candidate-head:hover {
+      background: #fafaf6;
+    }
+
+    .excluded-card .candidate-head:hover {
+      background: #fff5ef;
+    }
+
+    .rank-num {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12.5px;
+      color: var(--muted);
+      width: 22px;
+    }
+
+    .name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .name .file {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .name .gate-note {
+      display: block;
+      font-size: 11px;
+      color: var(--caution);
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .seal {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-8deg);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .seal::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      opacity: 0.55;
+    }
+
+    .seal .t1 {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+
+    .seal .t2 {
+      font-size: 6.5px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      opacity: 0.85;
+    }
+
+    .seal.ok {
+      color: var(--verified);
+    }
+
+    .seal.no {
+      color: var(--caution);
+    }
+
+    .score {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 24px;
+      font-weight: 600;
+      width: 64px;
+      text-align: right;
+    }
+
+    .score.muted {
+      color: var(--muted);
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 11px;
+      transition: transform 0.15s ease;
+      width: 14px;
+    }
+
+    .candidate.open .chevron {
+      transform: rotate(90deg);
+    }
+
+    .candidate-body {
+      display: none;
+      padding: 4px 22px 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .candidate.open .candidate-body {
+      display: block;
+    }
+
+    .row {
+      margin-top: 16px;
+    }
+
+    .row .row-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 4px 11px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .chip.match {
+      background: var(--verified-bg);
+      color: var(--verified);
+    }
+
+    .chip.gap {
+      background: var(--caution-bg);
+      color: var(--caution);
+    }
+
+    .reasoning {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      font-style: italic;
+      border-left: 3px solid var(--line);
+      padding-left: 13px;
+    }
+
+    .edu-note {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      line-height: 1.55;
+      background: #faf9f4;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 10px 13px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-action:hover {
+      background: #f3f1ea;
+    }
+
+    .btn-action.primary {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .btn-action.primary:hover {
+      background: #1d3354;
+    }
+
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .questions-panel {
+      margin-top: 16px;
+      background: #fafaf6;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 16px 18px;
+    }
+
+    .q-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 12px 0 6px;
+    }
+
+    .q-section-label:first-child {
+      margin-top: 0;
+    }
+
+    .questions-panel ol {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .questions-panel ol li {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin-bottom: 4px;
+    }
+
+    .questions-loading {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .excluded-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 18px;
+      margin-top: 24px;
+      background: var(--caution-bg);
+      border: 1px solid var(--caution);
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .excluded-toggle:hover {
+      background: #f0ddd0;
+    }
+
+    .excluded-toggle .et-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--caution);
+    }
+
+    .et-chevron {
+      font-size: 11px;
+      color: var(--caution);
+      transition: transform 0.2s;
+    }
+
+    .excluded-toggle.open .et-chevron {
+      transform: rotate(90deg);
+    }
+
+    .excluded-list {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .excluded-list.open {
+      display: block;
+    }
+
+    .excluded-header-note {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 4px 12px;
+      line-height: 1.5;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(14, 25, 45, 0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px 34px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+    }
+
+    .modal h3 {
+      font-family: "Source Serif 4", serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 8px;
+    }
+
+    .modal p {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin: 0 0 18px;
+    }
+
+    .modal-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 15px;
+      background: #fafaf6;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .modal-check:hover {
+      border-color: var(--accent);
+    }
+
+    .modal-check.checked {
+      border-color: var(--accent);
+      background: #fef9f0;
+    }
+
+    .modal-check input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .modal-check-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .modal-check-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .modal-btn.primary {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .modal-btn.primary:hover {
+      background: #1d3354;
+    }
+
+    .modal-btn:hover {
+      background: #f3f1ea;
+    }
+
+    .bias-banner {
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--line);
+    }
+
+    .bias-banner.flagged {
+      background: var(--caution-bg);
+      border-color: var(--caution);
+    }
+
+    .bias-banner.clear {
+      background: var(--verified-bg);
+      border-color: var(--verified);
+    }
+
+    .bias-banner .bias-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .bias-banner.flagged .bias-head {
+      color: var(--caution);
+    }
+
+    .bias-banner.clear .bias-head {
+      color: var(--verified);
+    }
+
+    .bias-banner .bias-detail {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      line-height: 1.55;
+      margin-top: 6px;
+    }
+
+    .bias-banner .bias-check-line {
+      margin-top: 6px;
+    }
+
+    .loading,
+    .error {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+
+      .topbar,
+      header.page-head,
+      main {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      header.page-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .seal {
+        width: 46px;
+        height: 46px;
+      }
+
+      .score {
+        font-size: 19px;
+      }
+
+      .stats-row {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <div class="brand">AI Resume Scanner</div>
+    <nav>
+      <a href="/intake">New job</a>
+      <a href="/dashboard" class="active">Rankings</a>
+    </nav>
+  </div>
+
+  <header class="page-head">
+    <div>
+      <h1>Candidate ranking</h1>
+      <div class="sub">Every score is independently verified against the candidate's actual resume data.</div>
+    </div>
+    <a class="btn-full-report" href="/api/full-report" download>⬇ Download Full Report</a>
+  </header>
+
+  <main id="main">
+    <div class="loading">Loading ranking results…</div>
+  </main>
+
+  <div class="modal-overlay" id="download-modal">
+    <div class="modal">
+      <h3>Download candidate report</h3>
+      <p>Choose what to include in the PDF for this candidate.</p>
+      <label class="modal-check" id="modal-check-label">
+        <input type="checkbox" id="include-questions-checkbox" />
+        <div class="modal-check-text">
+          <strong>Include interview questions</strong>
+          <span id="modal-questions-hint">Qwen will generate 15 personalised questions. Adds approximately 1–2
+            minutes.</span>
+        </div>
+      </label>
+      <div class="modal-actions">
+        <button class="modal-btn" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="confirmDownload()">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let _pendingDownload = null;
+    const _questionsCache = {};
+
+    async function load() {
+      const main = document.getElementById("main");
+      try {
+        const res = await fetch("/api/rankings/latest");
+        if (!res.ok) {
+          const err = await res.json();
+          main.innerHTML = `<div class="error">${err.detail || "No results found yet. Submit a job first."}</div>`;
+          return;
+        }
+        const data = await res.json();
+        render(data);
+      } catch (e) {
+        main.innerHTML = `<div class="error">Could not reach the server. Make sure the backend is running.</div>`;
+      }
+    }
+
+    function buildCandidateCard(c, i, prefix, isExcluded) {
+      const pool = isExcluded ? "excluded" : "ranking";
+      const cardId = `${prefix}${i}`;
+      const cardClass = isExcluded ? "candidate excluded-card" : "candidate";
+
+      const eduMatch = c.education_match;
+      const sealHtml = (eduMatch === null || eduMatch === undefined)
+        ? `<div style="width:58px;flex-shrink:0;"></div>`
+        : eduMatch
+          ? `<div class="seal ok"><div class="t1">VERIFIED</div><div class="t2">EDU CHECK</div></div>`
+          : `<div class="seal no"><div class="t1">UNVERIFIED</div><div class="t2">EDU CHECK</div></div>`;
+
+      const gateNoteHtml = c.education_gate_note
+        ? `<span class="gate-note">⚠ ${c.education_gate_note}</span>`
+        : "";
+
+      const rankHtml = isExcluded
+        ? `<div class="rank-num" style="color:var(--caution);">—</div>`
+        : `<div class="rank-num">${String(i + 1).padStart(2, "0")}</div>`;
+
+      const scoreHtml = `<div class="score ${isExcluded ? "muted" : ""}">${c.fit_score ?? "—"}</div>`;
+
+      return `
+        <div class="${cardClass}" style="animation-delay:${i * 0.05}s" id="${cardId}">
+          <div class="candidate-head" onclick="toggle('${cardId}')">
+            ${rankHtml}
+            <div class="name">
+              ${c.name || "Unknown"}
+              ${gateNoteHtml}
+              <span class="file">${c.file || ""}</span>
+            </div>
+            ${sealHtml}
+            ${scoreHtml}
+            <div class="chevron">▶️</div>
+          </div>
+          <div class="candidate-body">
+            <div class="row">
+              <div class="row-label">Matched skills</div>
+              <div class="chips">
+                ${(c.skill_matches || []).map(s => `<span class="chip match">${s}</span>`).join("") || "<span class='chip gap'>none</span>"}
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-label">Missing skills</div>
+              <div class="chips">
+                ${(c.skill_gaps || []).map(s => `<span class="chip gap">${s}</span>`).join("") || "<span class='chip match'>none</span>"}
+              </div>
+            </div>
+            ${c.education_notes ? `
+            <div class="row">
+              <div class="row-label">Education check</div>
+              <div class="edu-note">${c.education_notes}</div>
+            </div>` : ""}
+            <div class="row">
+              <div class="row-label">Why this score</div>
+              <div class="reasoning">${c.reasoning || ""}</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn-action primary" onclick="openDownloadModal('${pool}', ${i})">
+                ⬇ Download Report
+              </button>
+              <button class="btn-action" onclick="generateQuestions('${cardId}', '${pool}', ${i})">
+                💬 Generate Interview Questions
+              </button>
+            </div>
+            <div id="${cardId}-questions"></div>
+          </div>
+        </div>`;
+    }
+
+    function render(data) {
+      const jd = data.jd_criteria || {};
+      const ranking = data.ranking || [];
+      const excluded = (data.excluded || []).sort((a, b) => (b.fit_score ?? 0) - (a.fit_score ?? 0));
+      const skills = (jd.skills && jd.skills.required) || [];
+      const eduReq = jd.education || {};
+
+      const scores = ranking.map(c => c.fit_score).filter(s => typeof s === "number");
+      const topScore = scores.length ? Math.max(...scores) : "—";
+      const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : "—";
+
+      const biasReport = data.bias_report || null;
+      let biasHtml = "";
+      if (biasReport) {
+        const isFlagged = biasReport.any_flagged;
+        const checksHtml = (biasReport.checks || []).map(c =>
+          `<div class="bias-check-line">${c.flagged ? "⚠" : "✓"} <strong>${c.check.replace(/_/g, " ")}</strong> — ${c.detail}</div>`
+        ).join("");
+        biasHtml = `
+          <div class="bias-banner ${isFlagged ? "flagged" : "clear"}">
+            <div class="bias-head">${isFlagged ? "⚠ Bias check flagged" : "✓ Bias checks passed"}</div>
+            <div class="bias-detail">${checksHtml}</div>
+          </div>`;
+      }
+
+      let html = `
+        <div class="jd-card">
+          <div class="label">Job description</div>
+          <div class="role-line">${(jd.role_type || "Role").toUpperCase()} · ${jd.seniority || ""}${jd.location ? " · " + jd.location : ""}${jd.work_mode ? " (" + jd.work_mode + ")" : ""}</div>
+          <div class="skills-line">Required: ${skills.join(", ") || "—"}</div>
+          ${eduReq.minimum_degree ? `<div class="skills-line">Education: ${eduReq.minimum_degree}${eduReq.minimum_gpa ? ", min GPA " + eduReq.minimum_gpa : ""}${eduReq.preferred_institutions && eduReq.preferred_institutions.length ? ", preferred: " + eduReq.preferred_institutions.join(", ") : ""}</div>` : ""}
+        </div>
+
+        ${biasHtml}
+
+        <div class="stats-row">
+          <div class="stat"><div class="num">${ranking.length}</div><div class="lbl">Candidates</div></div>
+          <div class="stat"><div class="num">${topScore}</div><div class="lbl">Top score</div></div>
+          <div class="stat"><div class="num">${avgScore}</div><div class="lbl">Average score</div></div>
+          <div class="stat"><div class="num">${excluded.length || 0}</div><div class="lbl">Excluded</div></div>
+        </div>
+
+        <div class="section-label">Ranked candidates</div>`;
+
+      ranking.forEach((c, i) => { html += buildCandidateCard(c, i, "c", false); });
+
+      if (excluded.length > 0) {
+        html += `
+          <div class="excluded-toggle" id="excluded-toggle" onclick="toggleExcluded()">
+            <div class="et-left">
+              <span>⚠</span>
+              <span>${excluded.length} candidate${excluded.length > 1 ? "s" : ""} excluded — did not meet the education requirement</span>
+            </div>
+            <span class="et-chevron">▶️</span>
+          </div>
+          <div class="excluded-list" id="excluded-list">
+            <div class="excluded-header-note">
+              These candidates were fully scored but excluded from the main ranking because they did not meet the education requirement. The recruiter may choose to manually reconsider any of them.
+            </div>`;
+        excluded.forEach((c, i) => { html += buildCandidateCard(c, i, "x", true); });
+        html += `</div>`;
+      }
+
+      document.getElementById("main").innerHTML = html;
+    }
+
+    function toggle(id) { document.getElementById(id).classList.toggle("open"); }
+
+    function toggleExcluded() {
+      document.getElementById("excluded-toggle").classList.toggle("open");
+      document.getElementById("excluded-list").classList.toggle("open");
+    }
+
+    // ── Download modal ──────────────────────────────────────────────────────
+
+    function openDownloadModal(pool, index) {
+      _pendingDownload = { pool, index };
+      const cacheKey = `${pool}-${index}`;
+      const cached = _questionsCache[cacheKey] || null;
+
+      document.getElementById("include-questions-checkbox").checked = false;
+      document.getElementById("modal-check-label").classList.remove("checked");
+
+      // Update hint depending on whether questions already exist in cache
+      document.getElementById("modal-questions-hint").textContent = cached
+        ? "Questions already generated — will be included instantly, no extra wait."
+        : "Qwen will generate 15 personalised questions. Adds approximately 1–2 minutes.";
+
+      document.getElementById("download-modal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("download-modal").classList.remove("open");
+      _pendingDownload = null;
+    }
+
+    document.getElementById("include-questions-checkbox").addEventListener("change", function () {
+      document.getElementById("modal-check-label").classList.toggle("checked", this.checked);
+    });
+
+    document.getElementById("download-modal").addEventListener("click", function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    async function confirmDownload() {
+      if (!_pendingDownload) return;
+      const { pool, index } = _pendingDownload;
+      const includeQ = document.getElementById("include-questions-checkbox").checked;
+      const cacheKey = `${pool}-${index}`;
+      const cached = _questionsCache[cacheKey] || null;
+      closeModal();
+
+      const cardPrefix = pool === "excluded" ? "x" : "c";
+      const btn = document.querySelector(`#${cardPrefix}${index} .btn-action.primary`);
+      if (btn) { btn.disabled = true; btn.textContent = includeQ && !cached ? "Generating…" : "Preparing…"; }
+
+      try {
+        let res;
+
+        if (includeQ && cached) {
+          // Use cached questions — POST them to server, no Qwen call
+          res = await fetch(`/api/candidate-report/${pool}/${index}?include_questions=false`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ questions: cached }),
+          });
+        } else if (includeQ && !cached) {
+          // Questions not generated yet — let server call Qwen
+          res = await fetch(`/api/candidate-report/${pool}/${index}?include_questions=true`);
+        } else {
+          // No questions
+          res = await fetch(`/api/candidate-report/${pool}/${index}`);
+        }
+
+        if (!res.ok) throw new Error("Server error");
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `candidate_report_${index + 1}.pdf`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+
+      } catch (e) {
+        alert("Download failed. Please try again.");
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = "⬇ Download Report"; }
+      }
+    }
+
+    // ── Interview questions ─────────────────────────────────────────────────
+
+    async function generateQuestions(cardId, pool, index) {
+      const container = document.getElementById(`${cardId}-questions`);
+      const btn = document.querySelector(`#${cardId} .btn-action:not(.primary)`);
+      if (btn && btn.disabled) return;
+
+      container.innerHTML = `<div class="questions-panel"><div class="questions-loading">Generating personalised questions using Qwen — this takes about a minute…</div></div>`;
+      if (btn) { btn.disabled = true; btn.textContent = "Generating…"; }
+
+      try {
+        const res = await fetch(`/api/interview-questions/${pool}/${index}`, { method: "POST" });
+        if (!res.ok) {
+          const err = await res.json();
+          container.innerHTML = `<div class="questions-panel"><div class="questions-loading" style="color:var(--caution)">Failed: ${err.detail || "Unknown error"}</div></div>`;
+          if (btn) btn.disabled = false;
+          return;
+        }
+
+        const data = await res.json();
+        const sections = data.sections || {};
+
+        // Cache for download
+        _questionsCache[`${pool}-${index}`] = data;
+
+        const labels = {
+          technical_depth: "Technical depth",
+          skill_gap_probing: "Skill gap probing",
+          experience_leadership: "Experience & leadership",
+          culture_problem_solving: "Culture & problem solving",
+        };
+
+        let html = `<div class="questions-panel">`;
+        for (const [key, label] of Object.entries(labels)) {
+          const qs = sections[key] || [];
+          if (!qs.length) continue;
+          html += `<div class="q-section-label">${label}</div><ol>`;
+          qs.forEach(q => { html += `<li>${q}</li>`; });
+          html += `</ol>`;
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+        if (btn) { btn.disabled = false; btn.textContent = "↺ Regenerate Questions"; }
+
+      } catch (e) {
+        container.innerHTML = `<div class="questions-panel"><div class="questions-loading" style="color:var(--caution)">Could not reach server.</div></div>`;
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    load();
+  </script>
+
+</body>
+
+</html>
